@@ -91,11 +91,15 @@ const buildMarkdownFromTemplate = (form, values) => {
 
   if (id === 'purchaseFromMall') {
     const mention = (values.mention || valueMap.mention || '').trim()
-    const summaryRaw = (values.summary || valueMap.summary || '').trim()
+    let summaryRaw = (values.summary || valueMap.summary || '').trim()
     const headerParts = []
 
     if (mention) {
       headerParts.push(mention)
+    }
+
+    if (!summaryRaw && mention) {
+      summaryRaw = 'logs a purchase'
     }
 
     if (summaryRaw) {
@@ -110,7 +114,8 @@ const buildMarkdownFromTemplate = (form, values) => {
 
     const total = itemsLines.reduce((accumulator, line) => accumulator + parseLineCost(line), 0)
 
-    valueMap.purchaseHeader = headerParts.join(' ').trim()
+    const purchaseHeader = headerParts.join(' ').trim()
+    valueMap.purchaseHeader = purchaseHeader || 'Purchase Log:'
     valueMap.itemsFormatted = itemsLines.join('\n')
     valueMap.totalFormatted = formatTotal(total)
 
@@ -181,7 +186,7 @@ function UserTools() {
     <Container maxWidth="md" sx={{ py: 6, display: 'grid', gap: 3 }}>
       <Box sx={{ display: 'grid', gap: 1.5 }}>
         <Typography variant="h4" component="h2">
-          Player Character Builder
+          Player Character Tools
         </Typography>
         <Tabs value={activeFormId} onChange={handleTabChange} variant="scrollable" allowScrollButtonsMobile>
           {userFormOptions.map((form) => (
