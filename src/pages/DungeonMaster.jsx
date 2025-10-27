@@ -182,23 +182,33 @@ function DungeonMaster() {
       </Box>
 
       {markdown && (
-        <Paper elevation={3} sx={{ p: 0, overflow: 'hidden' }}>
+        <Paper
+          elevation={6}
+          sx={{
+            p: 0,
+            overflow: 'hidden',
+            border: '1px solid rgba(127, 90, 240, 0.35)',
+            background: 'linear-gradient(135deg, rgba(18,20,38,0.85), rgba(27,20,45,0.9))',
+            backdropFilter: 'blur(16px)',
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              px: 2,
-              py: 1.5,
-              borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-              backgroundColor: (theme) => theme.palette.grey[100],
+              px: 2.5,
+              py: 1.75,
+              borderBottom: '1px solid rgba(127, 90, 240, 0.35)',
+              background: 'linear-gradient(135deg, rgba(28, 22, 48, 0.95), rgba(46, 28, 68, 0.9))',
+              color: 'text.primary',
             }}
           >
-            <Typography variant="h6" sx={{ mr: 1 }}>
+            <Typography variant="h6" sx={{ mr: 1, fontWeight: 600 }}>
               Markdown Output
             </Typography>
             <Tooltip title={copied ? 'Copied!' : 'Copy to clipboard'} placement="left">
-              <IconButton aria-label="Copy markdown" onClick={handleCopy} size="small">
+              <IconButton aria-label="Copy markdown" onClick={handleCopy} size="small" color="primary">
                 <ContentCopyIcon fontSize="small" />
               </IconButton>
             </Tooltip>

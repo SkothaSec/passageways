@@ -45,11 +45,78 @@ const transformValue = (field, rawValue) => {
   return trimmed || fallback
 }
 
-const buildMarkdownFromTemplate = (template, fields, values) => {
+const parseLineCost = (line) => {
+  const match = line.match(/[\-–]\s*([0-9.,]+)\s*([kKmM]?)/)
+  if (!match) {
+    return 0
+  }
+
+  const amount = parseFloat(match[1].replace(/,/g, ''))
+  if (Number.isNaN(amount)) {
+    return 0
+  }
+
+  const unit = match[2]?.toLowerCase()
+  const multiplier = unit === 'm' ? 1_000_000 : unit === 'k' ? 1_000 : 1
+  return amount * multiplier
+}
+
+const formatTotal = (value) => {
+  if (!value) {
+    return '0'
+  }
+
+  if (value % 1_000_000 === 0 && value >= 1_000_000) {
+    return `${value / 1_000_000}m`
+  }
+
+  if (value % 1_000 === 0 && value >= 1_000) {
+    return `${value / 1_000}k`
+  }
+
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(1).replace(/\.0$/, '')}k`
+  }
+
+  return `${value}`
+}
+
+const buildMarkdownFromTemplate = (form, values) => {
+  const { template, fields, id } = form
+
   const valueMap = fields.reduce((accumulator, field) => {
     accumulator[field.name] = transformValue(field, values[field.name])
     return accumulator
   }, {})
+
+  if (id === 'purchaseFromMall') {
+    const mention = (values.mention || valueMap.mention || '').trim()
+    const summaryRaw = (values.summary || valueMap.summary || '').trim()
+    const headerParts = []
+
+    if (mention) {
+      headerParts.push(mention)
+    }
+
+    if (summaryRaw) {
+      const summary = summaryRaw.endsWith(':') ? summaryRaw : `${summaryRaw}:`
+      headerParts.push(summary)
+    }
+
+    const itemsLines = (values.items || valueMap.items || '')
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+
+    const total = itemsLines.reduce((accumulator, line) => accumulator + parseLineCost(line), 0)
+
+    valueMap.purchaseHeader = headerParts.join(' ').trim()
+    valueMap.itemsFormatted = itemsLines.join('\n')
+    valueMap.totalFormatted = formatTotal(total)
+
+    const notes = (values.notes || valueMap.notes || '').trim()
+    valueMap.notesSection = notes ? `\n\n${notes}` : ''
+  }
 
   return template.replace(/{{(\w+)}}/g, (_, key) => valueMap[key] ?? '')
 }
@@ -92,7 +159,7 @@ function UserTools() {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    const output = buildMarkdownFromTemplate(activeForm.template, activeForm.fields, values)
+    const output = buildMarkdownFromTemplate(activeForm, values)
     setMarkdown(output)
     setDiscordBlock(`\`\`\`markdown\n${output}\n\`\`\``)
   }
@@ -149,23 +216,33 @@ function UserTools() {
       </Box>
 
       {markdown && (
-        <Paper elevation={3} sx={{ p: 0, overflow: 'hidden' }}>
+        <Paper
+          elevation={6}
+          sx={{
+            p: 0,
+            overflow: 'hidden',
+            border: '1px solid rgba(127, 90, 240, 0.35)',
+            background: 'linear-gradient(135deg, rgba(18,20,38,0.85), rgba(27,20,45,0.9))',
+            backdropFilter: 'blur(16px)',
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              px: 2,
-              py: 1.5,
-              borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-              backgroundColor: (theme) => theme.palette.grey[100],
+              px: 2.5,
+              py: 1.75,
+              borderBottom: '1px solid rgba(127, 90, 240, 0.35)',
+              background: 'linear-gradient(135deg, rgba(28, 22, 48, 0.95), rgba(46, 28, 68, 0.9))',
+              color: 'text.primary',
             }}
           >
-            <Typography variant="h6" sx={{ mr: 1 }}>
+            <Typography variant="h6" sx={{ mr: 1, fontWeight: 600 }}>
               Markdown Output
             </Typography>
             <Tooltip title={copied ? 'Copied!' : 'Copy to clipboard'} placement="left">
-              <IconButton aria-label="Copy markdown" onClick={handleCopy} size="small">
+              <IconButton aria-label="Copy markdown" onClick={handleCopy} size="small" color="primary">
                 <ContentCopyIcon fontSize="small" />
               </IconButton>
             </Tooltip>

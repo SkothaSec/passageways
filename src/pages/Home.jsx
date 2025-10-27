@@ -5,6 +5,7 @@ import Container from '@mui/material/Container'
 import Link from '@mui/material/Link'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import communityLinks from '../data/communityLinks.js'
 
 const loreSections = [
   {
@@ -52,7 +53,7 @@ function Home() {
             variant="contained"
             color="primary"
             component={Link}
-            href="https://discord.gg/your-server"
+            href={communityLinks.discord}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -62,7 +63,7 @@ function Home() {
             variant="outlined"
             color="primary"
             component={Link}
-            href="https://patreon.com/your-patreon"
+            href={communityLinks.patreon}
             target="_blank"
             rel="noopener noreferrer"
           >

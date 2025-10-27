@@ -4,32 +4,35 @@ export const userFormOptions = [
     label: 'Purchase from Mall',
     description: 'Log what your character picked up from the marketplace.',
     fields: [
-      { name: 'characterName', label: 'Character Name', defaultValue: 'Adventurer name goes here.' },
       {
-        name: 'party',
-        label: 'Adventuring Party / Affiliations',
-        defaultValue: 'Mention the party, faction, or patrons involved.',
+        name: 'mention',
+        label: 'Discord Mention',
+        defaultValue: '@Adventurer',
+      },
+      {
+        name: 'summary',
+        label: 'Purchase Summary',
+        defaultValue: 'as they restock consumables lost in transit',
       },
       {
         name: 'items',
-        label: 'Items Acquired (one per line)',
-        defaultValue: '- Healing Potion x2 — 100 gp.\n- Bag of Holding — 400 gp.',
+        label: 'Purchased Items (format: Item (qty) - cost)',
+        defaultValue:
+          "Quaal's Feather Token, Tree (10) - 1k\nMedal of the Maze (5) - 25k\nPaper Bird (100) - 20k",
         multiline: true,
-        minRows: 3,
-        transform: 'list',
+        minRows: 6,
       },
       {
         name: 'notes',
-        label: 'Purchase Notes',
-        defaultValue: 'Add why the purchase was needed or who approved it.',
+        label: 'Additional Notes',
+        defaultValue: '',
         multiline: true,
-        minRows: 3,
+        minRows: 2,
       },
     ],
-    template: `## Purchase Receipt: {{characterName}}\n\n` +
-      `**Party / Affiliations:** {{party}}\n\n` +
-      `### Items Acquired\n{{items}}\n\n` +
-      `**Notes**\n{{notes}}`,
+    template: `{{purchaseHeader}}\n\n` +
+      `{{itemsFormatted}}\n\n` +
+      `Total: {{totalFormatted}}{{notesSection}}`,
   },
   {
     id: 'levelUpLog',
@@ -43,52 +46,52 @@ export const userFormOptions = [
       },
       {
         name: 'newLevel',
-        label: 'New Level / Class Split',
-        defaultValue: 'Level 6 (Paladin 4 / Sorcerer 2).',
+        label: 'New Level (overall)',
+        defaultValue: 'Level 9',
       },
       {
-        name: 'date',
-        label: 'Date Achieved',
-        defaultValue: 'Mark the session date or downtime when this happened.',
+        name: 'newLevelClass',
+        label: 'New Level Class',
+        defaultValue: 'Rogue 5',
       },
       {
-        name: 'hpChanges',
-        label: 'Hit Point Changes',
-        defaultValue: 'HP increased by 7; max HP now 54.',
+        name: 'newSubclass',
+        label: 'New Subclass',
+        defaultValue: 'None selected',
+      },
+      {
+        name: 'newClassFeatures',
+        label: 'New Class Feature(s)',
+        defaultValue: '- Uncanny Dodge',
         multiline: true,
         minRows: 2,
+        transform: 'list',
       },
       {
-        name: 'features',
-        label: 'New Class Features / Feats',
-        defaultValue: '- Aura of Protection (Paladin).\n- Metamagic: Quickened Spell.',
+        name: 'asiOrFeat',
+        label: 'ASI or New Feats',
+        defaultValue: '- Skulker (gained +1 DEX, learned Darkness spell)',
         multiline: true,
         minRows: 3,
         transform: 'list',
       },
       {
-        name: 'spells',
-        label: 'New or Upgraded Spells',
-        defaultValue: '- Revivify added to prepared list.\n- Fireball now available at 3rd level.',
+        name: 'otherChoices',
+        label: 'Other Level-Up Choices',
+        defaultValue: '- Learned Counterspell (Warlock)\n- Added Deception proficiency',
         multiline: true,
         minRows: 3,
         transform: 'list',
-      },
-      {
-        name: 'downtime',
-        label: 'Downtime Notes / Roleplay Beats',
-        defaultValue: 'Describe important scenes or narrative consequences.',
-        multiline: true,
-        minRows: 3,
       },
     ],
-    template: `# Level Up Log: {{characterName}}\n\n` +
-      `**New Level:** {{newLevel}}\n\n` +
-      `**Date Achieved:** {{date}}\n\n` +
-      `**Hit Points:**\n{{hpChanges}}\n\n` +
-      `## New Features & Feats\n{{features}}\n\n` +
-      `## Spell Updates\n{{spells}}\n\n` +
-      `## Downtime & Roleplay\n{{downtime}}`,
+    template:
+      `Character Name: {{characterName}}\n` +
+      `New Level: {{newLevel}}\n` +
+      `New Level Class: {{newLevelClass}}\n` +
+      `New Subclass: {{newSubclass}}\n\n` +
+      `New Class Feature:\n{{newClassFeatures}}\n\n` +
+      `ASI or new Feats:\n{{asiOrFeat}}\n\n` +
+      `Other Level-Up Choices:\n{{otherChoices}}`,
   },
   {
     id: 'createCharacter',
