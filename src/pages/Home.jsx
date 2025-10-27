@@ -19,7 +19,7 @@ const loreSections = [
     ],
   },
   {
-    title: 'The Shore',
+    title: 'Final Flame - Rising',
     paragraphs: [
       "The story starts with a child born of a powerful adventuring couple, Jin Belmont and Alice Jeanna. The child was named Ares Belmont. A chosen vessel given their incredible affinity to perseverance and good. Much like any start, Ares's childhood was rather filled with wonder and splendour, his parents providing the best possible life they could for the young Ares. However, Jin always knew something remained dormant within Ares, something old, something primordial, beyond primordial, a concept, the vessel chosen by Asher, the final wielder being Ares.",
       "Upon discovery of a final vessel, Gaius set out across the multiverse wiping out and hunting every instance of Ares in every possible dimension and every dimension that was yet to exist... besides this one. Ares instead had a seal placed on their soul, laying dormant to hide from Gaius's vile gaze. It was only when Ares went up against Ancient Spirits when he truly awakened his dormant power.",
