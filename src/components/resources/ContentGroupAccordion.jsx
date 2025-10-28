@@ -1,8 +1,10 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Link from '@mui/material/Link'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
@@ -25,11 +27,117 @@ const renderBullet = (text, index) => (
 )
 
 function ContentGroupAccordion({ groups }) {
+  const metadata = useMemo(
+    () =>
+      groups.map((group, index) => {
+        const base = group.id || group.title
+        const sanitized = `${base}`
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
+        const id = `${sanitized || 'group'}-${index}`
+        return { id, group, summaryId: `group-btn-${id}`, panelId: `group-panel-${id}` }
+      }),
+    [groups],
+  )
+
+  const [expanded, setExpanded] = useState(() => new Set())
+  const summaryRefs = useRef({})
+
+  useEffect(() => {
+    setExpanded((prev) => {
+      const allowed = new Set(metadata.map(({ id }) => id))
+      const next = new Set([...prev].filter((id) => allowed.has(id)))
+      return next.size === prev.size ? prev : next
+    })
+  }, [metadata])
+
+  const togglePanel = (panelId, isExpanded) => {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      if (isExpanded) {
+        next.add(panelId)
+      } else {
+        next.delete(panelId)
+      }
+      return next
+    })
+  }
+
+  const expandAll = () => {
+    setExpanded(new Set(metadata.map(({ id }) => id)))
+  }
+
+  const collapseAll = () => {
+    setExpanded(new Set())
+  }
+
+  const handleJump = (panelId) => {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      next.add(panelId)
+      return next
+    })
+
+    requestAnimationFrame(() => {
+      const summaryNode = summaryRefs.current[panelId]
+      if (summaryNode) {
+        summaryNode.focus({ preventScroll: false })
+      }
+    })
+  }
+
   return (
     <Box>
-      {groups.map((group) => (
+      {metadata.length ? (
+        <Stack spacing={1.5} sx={{ mb: 3 }}>
+          <Box
+            component="nav"
+            aria-label="Server content categories"
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 1,
+            }}
+          >
+            {metadata.map(({ id, group }) => (
+              <Button
+                key={id}
+                size="small"
+                variant={expanded.has(id) ? 'contained' : 'outlined'}
+                onClick={() => handleJump(id)}
+                aria-controls={`group-panel-${id}`}
+              >
+                {group.title}
+              </Button>
+            ))}
+          </Box>
+          <Stack direction="row" spacing={1} justifyContent="flex-end">
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={expandAll}
+              disabled={expanded.size === metadata.length}
+            >
+              Expand all
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={collapseAll}
+              disabled={expanded.size === 0}
+            >
+              Collapse all
+            </Button>
+          </Stack>
+        </Stack>
+      ) : null}
+
+      {metadata.map(({ id, group, summaryId, panelId }) => (
         <Accordion
-          key={group.id || group.title}
+          key={id}
+          expanded={expanded.has(id)}
+          onChange={(_, isExpanded) => togglePanel(id, isExpanded)}
           disableGutters
           square
           sx={{
@@ -39,19 +147,33 @@ function ContentGroupAccordion({ groups }) {
           }}
         >
           <AccordionSummary
-            expandIcon={<ExpandMoreIcon sx={{ color: 'rgba(255,255,255,0.75)' }} />}
+            id={summaryId}
+            aria-controls={panelId}
+            expandIcon={<ExpandMoreIcon sx={{ color: 'rgba(255,255,255,0.75)' }} aria-hidden />}
             sx={{
               px: { xs: 1.5, md: 2 },
               '& .MuiAccordionSummary-content': {
                 my: { xs: 0.5, md: 0.75 },
               },
             }}
+            ref={(node) => {
+              if (node) {
+                summaryRefs.current[id] = node
+              } else {
+                delete summaryRefs.current[id]
+              }
+            }}
           >
             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
               {group.title}
             </Typography>
           </AccordionSummary>
-          <AccordionDetails sx={{ px: { xs: 1.5, md: 2 }, pb: { xs: 2, md: 2.5 } }}>
+          <AccordionDetails
+            id={panelId}
+            role="region"
+            aria-labelledby={summaryId}
+            sx={{ px: { xs: 1.5, md: 2 }, pb: { xs: 2, md: 2.5 } }}
+          >
             {group.type === 'homebrew' ? (
               <Stack spacing={3}>
                 {group.heroImage ? (
