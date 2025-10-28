@@ -152,7 +152,10 @@ function DungeonMaster() {
                     href="https://hammertime.cyou/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    sx={{ whiteSpace: 'nowrap' }}
+                    sx={{
+                      whiteSpace: 'nowrap',
+                      width: { xs: '100%', sm: 'auto' },
+                    }}
                   >
                     Open Hammertime
                   </Button>
@@ -176,7 +179,7 @@ function DungeonMaster() {
             )
           })}
         </Stack>
-        <Button type="submit" variant="contained" size="large">
+        <Button type="submit" variant="contained" size="large" sx={{ width: { xs: '100%', sm: 'auto' } }}>
           Generate Markdown
         </Button>
       </Box>

@@ -10,4 +10,7 @@ export default defineConfig({
       'refractor/lib/all': 'refractor/all',
     },
   },
+  optimizeDeps: {
+    include: ['react-markdown'],
+  },
 })
