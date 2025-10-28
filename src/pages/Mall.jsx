@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
 import Link from '@mui/material/Link'
+import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import MallFilters from '../components/mall/MallFilters.jsx'
 import MallTable from '../components/mall/MallTable.jsx'
 import useMallInventory from '../components/mall/useMallInventory.js'
+import CartDrawer from '../components/mall/CartDrawer.jsx'
 import { MALL_SHEETS, buildMallSheetViewUrl } from '../data/mallTable.js'
 
 function Mall() {
@@ -24,6 +26,9 @@ function Mall() {
   const [selectedTiers, setSelectedTiers] = useState([])
   const [selectedRarity, setSelectedRarity] = useState([])
   const [attunementFilter, setAttunementFilter] = useState('all')
+  const [cartItems, setCartItems] = useState([])
+  const [cartOpen, setCartOpen] = useState(false)
+  const [checkoutMarkdown, setCheckoutMarkdown] = useState('')
 
   const tierOptions = useMemo(
     () => Array.from(new Set(rows.map((row) => row.tier || 'Unspecified'))),
@@ -86,6 +91,139 @@ function Mall() {
     ],
     [],
   )
+
+  const parseGoldValue = useCallback((rawValue) => {
+    if (rawValue == null) {
+      return 0
+    }
+
+    let str = String(rawValue).trim()
+    if (!str || str === '—') {
+      return 0
+    }
+
+    let multiplier = 1
+    const suffix = str.slice(-1).toLowerCase()
+    if (suffix === 'k') {
+      multiplier = 1000
+      str = str.slice(0, -1)
+    } else if (suffix === 'm') {
+      multiplier = 1_000_000
+      str = str.slice(0, -1)
+    }
+
+    const numeric = parseFloat(str.replace(/[^0-9.]/g, ''))
+    if (!Number.isFinite(numeric)) {
+      return 0
+    }
+
+    return numeric * multiplier
+  }, [])
+
+  const formatGoldValue = useCallback((amount) => {
+    return `${new Intl.NumberFormat('en-US', {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+    }).format(amount)} gp`
+  }, [])
+
+  const handleAddToCart = useCallback(
+    (row) => {
+      const unitValue = parseGoldValue(row.value)
+      const displayValue = row.value && row.value !== '—' ? row.value : formatGoldValue(unitValue)
+
+      setCartItems((prev) => {
+        const existing = prev.find((item) => item.id === row.id)
+        if (existing) {
+          return prev.map((item) =>
+            item.id === row.id ? { ...item, quantity: item.quantity + 1 } : item,
+          )
+        }
+
+        return [
+          ...prev,
+          {
+            id: row.id,
+            name: row.name,
+            quantity: 1,
+            unitValue,
+            displayValue,
+          },
+        ]
+      })
+      setCheckoutMarkdown('')
+    },
+    [parseGoldValue, formatGoldValue],
+  )
+
+  const handleClearCart = useCallback(() => {
+    setCartItems([])
+    setCheckoutMarkdown('')
+  }, [])
+
+  const handleIncrementItem = useCallback((id) => {
+    setCartItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item)),
+    )
+    setCheckoutMarkdown('')
+  }, [])
+
+  const handleDecrementItem = useCallback((id) => {
+    setCartItems((prev) =>
+      prev
+        .map((item) => (item.id === id ? { ...item, quantity: item.quantity - 1 } : item))
+        .filter((item) => item.quantity > 0),
+    )
+    setCheckoutMarkdown('')
+  }, [])
+
+  const handleRemoveItem = useCallback((id) => {
+    setCartItems((prev) => prev.filter((item) => item.id !== id))
+    setCheckoutMarkdown('')
+  }, [])
+
+  const totalItems = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.quantity, 0),
+    [cartItems],
+  )
+
+  const cartDisplayItems = useMemo(
+    () =>
+      cartItems.map((item) => {
+        const subtotal = item.unitValue * item.quantity
+        const formattedValue = item.displayValue || formatGoldValue(item.unitValue)
+        const formattedSubtotal = formatGoldValue(subtotal)
+
+        return {
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          formattedValue,
+          formattedSubtotal,
+        }
+      }),
+    [cartItems, formatGoldValue],
+  )
+
+  const grandTotal = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.unitValue * item.quantity, 0),
+    [cartItems],
+  )
+
+  const grandTotalFormatted = useMemo(() => formatGoldValue(grandTotal), [grandTotal, formatGoldValue])
+
+  const handleCheckout = useCallback(() => {
+    if (!cartItems.length) {
+      setCheckoutMarkdown('')
+      return
+    }
+
+    const lines = cartItems.map(
+      (item) => `- ${item.name} (${item.quantity}) - ${formatGoldValue(item.unitValue * item.quantity)}`,
+    )
+    const markdown = `${lines.join('\n')}\n\nTotal: ${formatGoldValue(grandTotal)}`
+    setCheckoutMarkdown(markdown)
+  }, [cartItems, grandTotal, formatGoldValue])
 
   const filteredRows = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -182,8 +320,31 @@ function Mall() {
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (
-        <MallTable rows={filteredRows} columns={columns} loading={loading} />
+        <MallTable rows={filteredRows} columns={columns} loading={loading} onAddToCart={handleAddToCart} />
       )}
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setCartOpen(true)}
+        sx={{ justifySelf: 'start' }}
+      >
+        View Cart ({totalItems})
+      </Button>
+
+      <CartDrawer
+        open={cartOpen}
+        onClose={() => setCartOpen(false)}
+        items={cartDisplayItems}
+        grandTotal={grandTotalFormatted}
+        onClear={handleClearCart}
+        onIncrement={handleIncrementItem}
+        onDecrement={handleDecrementItem}
+        onRemove={handleRemoveItem}
+        markdown={checkoutMarkdown}
+        onCheckout={handleCheckout}
+        checkoutDisabled={!cartItems.length}
+      />
     </Container>
   )
 }

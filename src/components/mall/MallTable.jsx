@@ -1,7 +1,48 @@
+import { useMemo } from 'react'
+import PropTypes from 'prop-types'
+import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import { DataGrid, GridToolbar } from '@mui/x-data-grid'
 
-function MallTable({ rows, columns, loading }) {
+function MallTable({ rows, columns, loading, onAddToCart }) {
+  const augmentedColumns = useMemo(() => {
+    if (!onAddToCart) {
+      return columns
+    }
+
+    const hasActions = columns.some((column) => column.field === '__actions')
+    if (hasActions) {
+      return columns
+    }
+
+    return [
+      {
+        field: '__actions',
+        headerName: '',
+        sortable: false,
+        filterable: false,
+        width: 80,
+        align: 'center',
+        headerAlign: 'center',
+        renderCell: (params) => (
+          <IconButton
+            aria-label={`Add ${params.row.name} to cart`}
+            color="primary"
+            size="small"
+            onClick={(event) => {
+              event.stopPropagation()
+              onAddToCart(params.row)
+            }}
+          >
+            <AddCircleOutlineIcon fontSize="small" />
+          </IconButton>
+        ),
+      },
+      ...columns,
+    ]
+  }, [columns, onAddToCart])
+
   return (
     <Paper
       elevation={4}
@@ -17,9 +58,8 @@ function MallTable({ rows, columns, loading }) {
     >
       <DataGrid
         rows={rows}
-        columns={columns}
+        columns={augmentedColumns}
         disableColumnMenu
-        checkboxSelection
         loading={loading}
         components={{ Toolbar: GridToolbar }}
         sx={{
@@ -42,3 +82,10 @@ function MallTable({ rows, columns, loading }) {
 }
 
 export default MallTable
+
+MallTable.propTypes = {
+  rows: PropTypes.array.isRequired,
+  columns: PropTypes.array.isRequired,
+  loading: PropTypes.bool,
+  onAddToCart: PropTypes.func,
+}
