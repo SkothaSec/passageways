@@ -6,6 +6,8 @@ import Home from './pages/Home.jsx'
 import DungeonMaster from './pages/DungeonMaster.jsx'
 import UserTools from './pages/UserTools.jsx'
 import Mall from './pages/Mall.jsx'
+import About from './pages/About.jsx'
+import Resources from './pages/Resources.jsx'
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
           <Route path="/dm" element={<DungeonMaster />} />
           <Route path="/user" element={<UserTools />} />
           <Route path="/mall" element={<Mall />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/resources" element={<Resources />} />
         </Routes>
       </Box>
     </Box>

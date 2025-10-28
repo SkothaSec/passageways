@@ -10,13 +10,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import CloseIcon from '@mui/icons-material/Close'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-
-const navItems = [
-  { label: 'Home', path: '/' },
-  { label: 'DM Tools', path: '/dm' },
-  { label: 'Player Tools', path: '/user' },
-  { label: 'Mall', path: '/mall' },
-]
+import navItems from '../data/navigation.js'
 
 function Navbar() {
   const location = useLocation()
