@@ -101,55 +101,182 @@ export const userFormOptions = [
       {
         name: 'characterName',
         label: 'Character Name',
-        defaultValue: 'Insert your character name.',
+        defaultValue: 'Example: Ares Belmont',
       },
       {
-        name: 'ancestry',
-        label: 'Ancestry / Lineage',
-        defaultValue: 'Describe race, lineage, or heritage elements.',
+        name: 'ruleSetVersion',
+        label: 'Version (2014 or 2024)',
+        defaultValue: '2024',
       },
       {
-        name: 'characterClass',
-        label: 'Class & Subclass',
-        defaultValue: 'Bard (College of Lore) or similar breakdown.',
+        name: 'classes',
+        label: 'Class(es) (starting at level 3)',
+        defaultValue: 'Fighter 5 / Wizard 1',
       },
       {
-        name: 'background',
-        label: 'Background',
-        defaultValue: 'What life did your character lead before adventuring?',
+        name: 'subclass',
+        label: 'Subclass (if any)',
+        defaultValue: 'Eldritch Knight',
+      },
+      {
+        name: 'raceAndAsi',
+        label: 'Race & Racial ASI Bonuses',
+        defaultValue: 'Half-Elf (+2 CHA, +1 DEX, +1 CON); choosing Tasha\'s origins.',
         multiline: true,
         minRows: 2,
       },
       {
-        name: 'traits',
-        label: 'Personality Traits & Ideals',
-        defaultValue: '- Quick with a joke, but loyal to a fault.\n- Believes knowledge should be shared freely.',
-        multiline: true,
-        minRows: 3,
-        transform: 'list',
+        name: 'size',
+        label: 'Size',
+        defaultValue: 'Medium',
       },
       {
-        name: 'bonds',
-        label: 'Bonds & Flaws',
-        defaultValue: '- Owes a life debt to the local clergy.\n- Dangerously curious about forbidden lore.',
-        multiline: true,
-        minRows: 3,
-        transform: 'list',
+        name: 'alignment',
+        label: 'Alignment',
+        defaultValue: 'Neutral Good',
       },
       {
-        name: 'backstory',
-        label: 'Backstory',
-        defaultValue: 'Write the journey that led you to take up adventuring.',
+        name: 'background',
+        label: 'Background (include spells/spellcasting trait)',
+        defaultValue: 'Passageways Archivist — grants Message cantrip and keen mind.',
+        multiline: true,
+        minRows: 3,
+      },
+      {
+        name: 'strScore',
+        label: 'STR (base score)',
+        defaultValue: '8',
+      },
+      {
+        name: 'dexScore',
+        label: 'DEX (base score)',
+        defaultValue: '8',
+      },
+      {
+        name: 'conScore',
+        label: 'CON (base score)',
+        defaultValue: '8',
+      },
+      {
+        name: 'intScore',
+        label: 'INT (base score)',
+        defaultValue: '8',
+      },
+      {
+        name: 'wisScore',
+        label: 'WIS (base score)',
+        defaultValue: '8',
+      },
+      {
+        name: 'chaScore',
+        label: 'CHA (base score)',
+        defaultValue: '8',
+      },
+      {
+        name: 'languagesRace',
+        label: 'Race',
+        defaultValue: '',
+      },
+      {
+        name: 'languagesClass',
+        label: 'Class',
+        defaultValue: '',
+      },
+      {
+        name: 'languagesBackground',
+        label: 'Background',
+        defaultValue: '',
+      },
+      {
+        name: 'skillsRace',
+        label: 'Race',
+        defaultValue: '',
+      },
+      {
+        name: 'skillsClass',
+        label: 'Class',
+        defaultValue: '',
+      },
+      {
+        name: 'skillsBackground',
+        label: 'Background',
+        defaultValue: '',
+      },
+      {
+        name: 'toolsRace',
+        label: 'Race',
+        defaultValue: '',
+      },
+      {
+        name: 'toolsClass',
+        label: 'Class',
+        defaultValue: '',
+      },
+      {
+        name: 'toolsBackground',
+        label: 'Background',
+        defaultValue: '',
+      },
+      {
+        name: 'expertise',
+        label: 'Expertise (if any)',
+        defaultValue: 'Stealth, Investigation',
+        multiline: true,
+        minRows: 2,
+      },
+      {
+        name: 'feats',
+        label: 'Feats (label source)',
+        defaultValue: 'Fey Touched (R) — Misty Step & Hex prepared.',
+        multiline: true,
+        minRows: 2,
+      },
+      {
+        name: 'otherChoices',
+        label: 'Other Class Choices',
+        defaultValue: 'Warlock Invocations: Agonizing Blast (C), Eldritch Mind (C).',
         multiline: true,
         minRows: 4,
       },
     ],
-    template: `# Character Profile: {{characterName}}\n\n` +
-      `**Ancestry:** {{ancestry}}\n\n` +
-      `**Class & Subclass:** {{characterClass}}\n\n` +
-      `**Background:**\n{{background}}\n\n` +
-      `## Personality Traits & Ideals\n{{traits}}\n\n` +
-      `## Bonds & Flaws\n{{bonds}}\n\n` +
-      `## Backstory\n{{backstory}}`,
+    template:
+      `**__Character Creation Template__**\n` +
+      `───────────────────────────────\n\n` +
+      `**Name:**  {{characterName}}\n` +
+      `**Version:** (2014 or 2024)  {{ruleSetVersion}}\n\n` +
+      `**Class(es):** (starting at level 3)  {{classes}}\n` +
+      `**Subclass:** (if any)  {{subclass}}\n\n` +
+      `**Race & Racial ASI Bonuses:**  {{raceAndAsi}}\n` +
+      `(Specify subrace. For races with multiple versions from different sourcebooks, list the source you’re choosing.)\n\n` +
+      `**Size:**  {{size}}\n` +
+      `**Alignment:**  {{alignment}}\n\n` +
+      `───────────────────────────────\n\n` +
+      `**Background:**  {{background}}\n` +
+      `(List spells and spellcasting trait selected.)\n\n` +
+      `**Core Stats (without bonuses):**\n` +
+      "`STR {{strScore}}` | `DEX {{dexScore}}` | `CON {{conScore}}` | `INT {{intScore}}` | `WIS {{wisScore}}` | `CHA {{chaScore}}`\n" +
+      `[35 point buy with calculator](https://chicken-dinner.com/5e/5e-point-buy.html)\n\n` +
+      `**Source Labels:**\n` +
+      `R = Race | C = Class | B = Background\n` +
+      `───────────────────────────────\n` +
+      `**Languages:**\n` +
+      `R: {{languagesRace}}\n` +
+      `C: {{languagesClass}}\n` +
+      `B: {{languagesBackground}}\n\n` +
+      `**Proficient Skills:**\n` +
+      `R: {{skillsRace}}\n` +
+      `C: {{skillsClass}}\n` +
+      `B: {{skillsBackground}}\n\n` +
+      `**Proficient Tools:**\n` +
+      `R: {{toolsRace}}\n` +
+      `C: {{toolsClass}}\n` +
+      `B: {{toolsBackground}}\n\n` +
+      `**Expertise:** (if any)  {{expertise}}\n` +
+      `**Feat(s):** (include feats from Race/Background and label source)  {{feats}}\n\n` +
+      `───────────────────────────────\n\n` +
+      `**Other Class Choices:**  {{otherChoices}}\n` +
+      `(Includes known spells if any — Sorcerer, Warlock, etc.)\n` +
+      `Also list Invocations, Fighting Style, optional features,\n` +
+      `and any benefits gained from them such as skills.`,
   },
 ]
