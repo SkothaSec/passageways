@@ -13,7 +13,7 @@ function CartSummary({ items, grandTotal, padding = 0, onIncrement, onDecrement,
   return (
     <Box sx={{ p: padding, display: 'grid', gap: 2 }}>
       {hasItems ? (
-        <Stack spacing={2} sx={{ maxHeight: { xs: 320, sm: 'auto' }, overflowY: 'auto', pr: 1 }}>
+        <Stack spacing={2}>
           {items.map((item) => (
             <Box
               key={item.id}
@@ -67,13 +67,9 @@ function CartSummary({ items, grandTotal, padding = 0, onIncrement, onDecrement,
         </Box>
       )}
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, alignItems: 'center' }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-          Grand Total:
-        </Typography>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-          {grandTotal}
-        </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, alignItems: 'center', opacity: 0.75 }}>
+        <Typography variant="caption">Grand Total:</Typography>
+        <Typography variant="caption">{grandTotal}</Typography>
       </Box>
     </Box>
   )

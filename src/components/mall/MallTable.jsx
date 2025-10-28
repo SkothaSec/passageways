@@ -3,8 +3,7 @@ import PropTypes from 'prop-types'
 import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
-import { DataGrid, GridToolbar } from '@mui/x-data-grid'
-
+import { DataGrid } from '@mui/x-data-grid'
 function MallTable({ rows, columns, loading, onAddToCart }) {
   const augmentedColumns = useMemo(() => {
     if (!onAddToCart) {
@@ -61,7 +60,6 @@ function MallTable({ rows, columns, loading, onAddToCart }) {
         columns={augmentedColumns}
         disableColumnMenu
         loading={loading}
-        components={{ Toolbar: GridToolbar }}
         sx={{
           '& .MuiDataGrid-root': {
             border: 'none',
@@ -88,4 +86,9 @@ MallTable.propTypes = {
   columns: PropTypes.array.isRequired,
   loading: PropTypes.bool,
   onAddToCart: PropTypes.func,
+}
+
+MallTable.defaultProps = {
+  loading: false,
+  onAddToCart: undefined,
 }

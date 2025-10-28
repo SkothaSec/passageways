@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
 import Link from '@mui/material/Link'
-import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import MallFilters from '../components/mall/MallFilters.jsx'
+import MallFiltersPanel from '../components/mall/MallFiltersPanel.jsx'
 import MallTable from '../components/mall/MallTable.jsx'
 import useMallInventory from '../components/mall/useMallInventory.js'
 import CartDrawer from '../components/mall/CartDrawer.jsx'
@@ -62,8 +62,13 @@ function Mall() {
               target="_blank"
               rel="noopener noreferrer"
               underline="hover"
-              color="primary"
-              sx={{ fontWeight: 500 }}
+              color="secondary"
+              sx={{
+                fontWeight: 600,
+                color: 'secondary.light',
+                '&:hover': { color: 'secondary.main' },
+                '&:visited': { color: 'secondary.light' },
+              }}
             >
               {value}
             </Link>
@@ -282,24 +287,47 @@ function Mall() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 6, display: 'grid', gap: 3 }}>
-      <Box sx={{ display: 'grid', gap: 1.5 }}>
+      <Box sx={{ display: 'grid', gap: { xs: 2, md: 2.5 } }}>
         <Typography variant="h4" component="h1">
           Passageways Mall Inventory
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Browse the curated inventory pulled directly from the Passageways mall sheet. Use the filters to hone in on the exact gear you need.
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'stretch', md: 'center' },
+            gap: { xs: 1.5, md: 2 },
+          }}
+        >
+          <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
+            Browse the curated inventory pulled directly from the Passageways mall sheet. Use the filters to hone in on the exact gear you need.
+          </Typography>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setCartOpen(true)}
+            sx={{
+              alignSelf: { xs: 'stretch', md: 'center' },
+              minWidth: { md: 160 },
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              boxShadow: '0 8px 24px rgba(127, 90, 240, 0.35)',
+            }}
+          >
+            View Cart ({totalItems})
+          </Button>
+        </Box>
         <Typography variant="caption" color="text.secondary">
           Data source: <Link href={buildMallSheetViewUrl(activeSheet)} target="_blank" rel="noopener noreferrer">Passageways Mall Google Sheet</Link>
         </Typography>
       </Box>
 
-      <MallFilters
+      <MallFiltersPanel
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
         sheetOptions={MALL_SHEETS}
         selectedSheetId={activeSheetId}
         onSheetChange={setActiveSheetId}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
         tierOptions={tierOptions}
         selectedTiers={selectedTiers}
         onTiersChange={setSelectedTiers}
@@ -320,17 +348,10 @@ function Mall() {
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (
-        <MallTable rows={filteredRows} columns={columns} loading={loading} onAddToCart={handleAddToCart} />
+        <>
+          <MallTable rows={filteredRows} columns={columns} loading={loading} onAddToCart={handleAddToCart} />
+        </>
       )}
-
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setCartOpen(true)}
-        sx={{ justifySelf: 'start' }}
-      >
-        View Cart ({totalItems})
-      </Button>
 
       <CartDrawer
         open={cartOpen}

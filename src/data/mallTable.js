@@ -127,6 +127,8 @@ export const buildMallSheetViewUrl = (sheet) => {
 
 const BOOL_MARKERS = new Set(['✔', 'TRUE', 'True', 'true', 'Yes', 'Y'])
 
+const FIVEETOOLS_ITEMS_BASE_URL = 'https://5e.tools/items.html'
+
 const DEFAULT_COLUMN_ALIASES = {
   tier: ['tier', 'category', 'section'],
   name: ['name', 'item', 'title', 'artifact', 'potion', 'ring', 'tattoo'],
@@ -144,6 +146,32 @@ const coerceAttunement = (value) => {
   }
 
   return BOOL_MARKERS.has(value) ? 'Required' : value
+}
+
+const normalizeFiveEToolsSource = (value) => {
+  if (!value) {
+    return 'homebrew'
+  }
+
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .trim() || 'homebrew'
+}
+
+const buildFiveEToolsItemUrl = (name, source) => {
+  if (!name) {
+    return ''
+  }
+
+  const normalizedName = encodeURIComponent(name.trim().toLowerCase())
+    .replace(/%28/g, '(')
+    .replace(/%29/g, ')')
+
+  const sourceToken = normalizeFiveEToolsSource(source)
+
+  return `${FIVEETOOLS_ITEMS_BASE_URL}#${normalizedName}${sourceToken ? `_${sourceToken}` : ''}`
 }
 
 export const parseMallResponse = (payloadText, sheetConfig = {}) => {
@@ -228,16 +256,23 @@ export const parseMallResponse = (payloadText, sheetConfig = {}) => {
     const attunementCell = getCell(cells, resolveLabel('attunement'))
     const valueCell = getCell(cells, resolveLabel('value'))
 
+    const source = getCell(cells, resolveLabel('source')).formatted?.trim() || ''
+    const rarity = getCell(cells, resolveLabel('rarity')).formatted?.trim() || ''
+    const type = getCell(cells, resolveLabel('type')).formatted?.trim() || ''
+    const note = getCell(cells, resolveLabel('note')).formatted?.trim() || ''
+    const attunement = coerceAttunement(attunementCell.formatted?.trim() || attunementCell.raw)
+    const value = typeof valueCell.formatted === 'string' ? valueCell.formatted : valueCell.raw ?? ''
+
     rows.push({
       tier,
       name,
-      url: nameCell.link,
-      source: getCell(cells, resolveLabel('source')).formatted?.trim() || '',
-      rarity: getCell(cells, resolveLabel('rarity')).formatted?.trim() || '',
-      type: getCell(cells, resolveLabel('type')).formatted?.trim() || '',
-      attunement: coerceAttunement(attunementCell.formatted?.trim() || attunementCell.raw),
-      value: typeof valueCell.formatted === 'string' ? valueCell.formatted : valueCell.raw ?? '',
-      note: getCell(cells, resolveLabel('note')).formatted?.trim() || '',
+      url: buildFiveEToolsItemUrl(name, source) || nameCell.link,
+      source,
+      rarity,
+      type,
+      attunement,
+      value,
+      note,
     })
   }
 
