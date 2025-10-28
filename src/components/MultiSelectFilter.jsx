@@ -1,22 +1,45 @@
 import PropTypes from 'prop-types'
 import Box from '@mui/material/Box'
-import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
-import ListItemText from '@mui/material/ListItemText'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
+import Typography from '@mui/material/Typography'
 
-function MultiSelectFilter({ label, options, value, onChange, disableAllOption = false, sx }) {
-  const normalizedOptions = disableAllOption ? options : ['__ALL__', ...options]
-  const isAllSelected = !disableAllOption && value.length === options.length
+const ALL_TOKEN = '__ALL__'
+
+function MultiSelectFilter({
+  label,
+  options,
+  value,
+  onChange,
+  disableAllOption = false,
+  defaultToAll = true,
+  sx,
+}) {
+  const isAllSelected = !disableAllOption && value.length === options.length && options.length > 0
 
   const handleChange = (event) => {
     const { value: selected } = event.target
 
-    if (selected[selected.length - 1] === '__ALL__') {
-      onChange(isAllSelected ? [] : [...options])
+    const latest = selected[selected.length - 1]
+
+    if (!disableAllOption && latest === ALL_TOKEN) {
+      onChange([])
+      return
+    }
+
+    if (!disableAllOption && isAllSelected) {
+      const removed = value.filter((option) => !selected.includes(option))
+      if (removed.length === 1) {
+        onChange([removed[0]])
+        return
+      }
+    }
+
+    if (!selected.length && defaultToAll && !disableAllOption && options.length) {
+      onChange([...options])
       return
     }
 
@@ -32,12 +55,10 @@ function MultiSelectFilter({ label, options, value, onChange, disableAllOption =
         value={value}
         onChange={handleChange}
         renderValue={(selected) => {
-          if (!selected.length) {
-            return 'None selected'
-          }
-          if (!disableAllOption && selected.length === options.length) {
+          if (!selected.length || (!disableAllOption && selected.length === options.length)) {
             return 'All'
           }
+
           return (
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {selected.map((option) => (
@@ -49,17 +70,14 @@ function MultiSelectFilter({ label, options, value, onChange, disableAllOption =
         MenuProps={{ PaperProps: { sx: { maxHeight: 320 } } }}
       >
         {!disableAllOption && (
-          <MenuItem value="__ALL__">
-            <Checkbox size="small" checked={isAllSelected} />
-            <ListItemText primary="All" />
+          <MenuItem value={ALL_TOKEN}>
+            <Typography variant="body2">All</Typography>
           </MenuItem>
         )}
         {options.map((option) => {
-          const checked = value.indexOf(option) > -1
           return (
             <MenuItem key={option} value={option}>
-              <Checkbox size="small" checked={checked} />
-              <ListItemText primary={option} />
+              <Typography variant="body2">{option}</Typography>
             </MenuItem>
           )
         })}
@@ -74,6 +92,7 @@ MultiSelectFilter.propTypes = {
   value: PropTypes.arrayOf(PropTypes.string).isRequired,
   onChange: PropTypes.func.isRequired,
   disableAllOption: PropTypes.bool,
+  defaultToAll: PropTypes.bool,
   sx: PropTypes.object,
 }
 

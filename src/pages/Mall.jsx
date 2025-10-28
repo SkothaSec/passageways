@@ -3,74 +3,37 @@ import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
-import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormLabel from '@mui/material/FormLabel'
 import Link from '@mui/material/Link'
-import Paper from '@mui/material/Paper'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { DataGrid, GridToolbar } from '@mui/x-data-grid'
-import { MALL_SHEET_GVIZ_URL, parseMallResponse } from '../data/mallTable.js'
-import MultiSelectFilter from '../components/MultiSelectFilter.jsx'
+import MallFilters from '../components/mall/MallFilters.jsx'
+import MallTable from '../components/mall/MallTable.jsx'
+import useMallInventory from '../components/mall/useMallInventory.js'
+import { MALL_SHEETS, buildMallSheetViewUrl } from '../data/mallTable.js'
 
 function Mall() {
-  const [rows, setRows] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [activeSheetId, setActiveSheetId] = useState(MALL_SHEETS[0]?.id ?? '')
+  const activeSheet = useMemo(() => {
+    if (!MALL_SHEETS.length) {
+      return { id: 'default', label: 'Inventory', sheet: 'Sheet1' }
+    }
+    return MALL_SHEETS.find((sheet) => sheet.id === activeSheetId) ?? MALL_SHEETS[0]
+  }, [activeSheetId])
+
+  const { rows, loading, error } = useMallInventory(activeSheet.sheet)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTiers, setSelectedTiers] = useState([])
   const [selectedRarity, setSelectedRarity] = useState([])
   const [attunementFilter, setAttunementFilter] = useState('all')
 
-  useEffect(() => {
-    let abort = false
+  const tierOptions = useMemo(
+    () => Array.from(new Set(rows.map((row) => row.tier || 'Unspecified'))),
+    [rows],
+  )
 
-    const load = async () => {
-      try {
-        const response = await fetch(MALL_SHEET_GVIZ_URL)
-        if (!response.ok) {
-          throw new Error(`Failed to load mall data: ${response.status}`)
-        }
-
-        const payload = await response.text()
-        if (abort) {
-          return
-        }
-
-        const normalizedRows = parseMallResponse(payload).map((row, index) => ({
-          id: `${row.tier}-${row.name}-${index}`,
-          ...row,
-        }))
-
-        if (!abort) {
-          setRows(normalizedRows)
-          setError('')
-        }
-      } catch (err) {
-        if (!abort) {
-          console.error(err)
-          setError('Unable to load mall inventory right now. Please retry later.')
-        }
-      } finally {
-        if (!abort) {
-          setLoading(false)
-        }
-      }
-    }
-
-    load()
-
-    return () => {
-      abort = true
-    }
-  }, [])
-
-  const tierOptions = useMemo(() => Array.from(new Set(rows.map((row) => row.tier || 'Unspecified'))), [rows])
-
-  const rarityOptions = useMemo(() => Array.from(new Set(rows.map((row) => row.rarity || 'Unspecified'))), [rows])
+  const rarityOptions = useMemo(
+    () => Array.from(new Set(rows.map((row) => row.rarity || 'Unspecified'))),
+    [rows],
+  )
 
   const columns = useMemo(
     () => [
@@ -172,98 +135,55 @@ function Mall() {
     }
   }, [loading, rarityOptions, selectedRarity.length])
 
-  const renderFilters = () => (
-    <Box
-      sx={{
-        display: 'grid',
-        gap: 2,
-        gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' },
-        alignItems: 'center',
-      }}
-    >
-      <TextField
-        label="Search by item name"
-        value={searchQuery}
-        onChange={(event) => setSearchQuery(event.target.value)}
-        placeholder="Start typing to filter"
-        fullWidth
-      />
-      <MultiSelectFilter
-        label="Tier"
-        options={tierOptions}
-        value={selectedTiers}
-        onChange={setSelectedTiers}
-      />
-      <MultiSelectFilter
-        label="Rarity"
-        options={rarityOptions}
-        value={selectedRarity}
-        onChange={setSelectedRarity}
-      />
-      <FormControl component="fieldset" sx={{ gridColumn: { xs: '1 / -1', md: 'span 2', lg: 'auto' } }}>
-        <FormLabel component="legend">Attunement</FormLabel>
-        <RadioGroup
-          row
-          value={attunementFilter}
-          onChange={(event) => setAttunementFilter(event.target.value)}
-        >
-          <FormControlLabel value="all" control={<Radio />} label="All" />
-          <FormControlLabel value="required" control={<Radio />} label="Required" />
-          <FormControlLabel value="not_required" control={<Radio />} label="Not required" />
-        </RadioGroup>
-      </FormControl>
-    </Box>
-  )
-
-  const renderGrid = () => {
-    if (loading) {
-      return (
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          <CircularProgress size={24} />
-          <Typography variant="body2" color="text.secondary">
-            Loading mall inventory…
-          </Typography>
-        </Box>
-      )
-    }
-
-    if (error) {
-      return <Alert severity="error">{error}</Alert>
-    }
-
-    return (
-      <Paper elevation={2} sx={{ height: 680, width: '100%', display: 'grid', gap: 2, p: 2 }}>
-        {renderFilters()}
-        <DataGrid
-          rows={filteredRows}
-          columns={columns}
-          disableRowSelectionOnClick
-          checkboxSelection
-          initialState={{
-            pagination: { paginationModel: { pageSize: 25, page: 0 } },
-            sorting: { sortModel: [{ field: 'tier', sort: 'asc' }] },
-          }}
-          pageSizeOptions={[10, 25, 50, 100]}
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: true, quickFilterProps: { debounceMs: 300 } } }}
-        />
-      </Paper>
-    )
-  }
+  useEffect(() => {
+    setSearchQuery('')
+    setSelectedTiers([])
+    setSelectedRarity([])
+    setAttunementFilter('all')
+  }, [activeSheetId])
 
   return (
     <Container maxWidth="lg" sx={{ py: 6, display: 'grid', gap: 3 }}>
-      <Box sx={{ display: 'grid', gap: 1 }}>
-        <Typography variant="h4" component="h2">
-          Adventurer's Mall
+      <Box sx={{ display: 'grid', gap: 1.5 }}>
+        <Typography variant="h4" component="h1">
+          Passageways Mall Inventory
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Stock up on essentials and legendary finds for your next campaign. Inventory is synced
-          directly from the master spreadsheet.
+          Browse the curated inventory pulled directly from the Passageways mall sheet. Use the filters to hone in on the exact gear you need.
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          Data source: <Link href={buildMallSheetViewUrl(activeSheet)} target="_blank" rel="noopener noreferrer">Passageways Mall Google Sheet</Link>
         </Typography>
       </Box>
 
-      {renderGrid()}
+      <MallFilters
+        sheetOptions={MALL_SHEETS}
+        selectedSheetId={activeSheetId}
+        onSheetChange={setActiveSheetId}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        tierOptions={tierOptions}
+        selectedTiers={selectedTiers}
+        onTiersChange={setSelectedTiers}
+        rarityOptions={rarityOptions}
+        selectedRarity={selectedRarity}
+        onRarityChange={setSelectedRarity}
+        attunementFilter={attunementFilter}
+        onAttunementChange={setAttunementFilter}
+      />
+
+      {loading ? (
+        <Box sx={{ display: 'grid', placeItems: 'center', minHeight: 320 }}>
+          <CircularProgress color="inherit" />
+          <Typography variant="body2" sx={{ mt: 2 }}>
+            Mall inventory is loading...
+          </Typography>
+        </Box>
+      ) : error ? (
+        <Alert severity="error">{error}</Alert>
+      ) : (
+        <MallTable rows={filteredRows} columns={columns} loading={loading} />
+      )}
     </Container>
   )
 }
