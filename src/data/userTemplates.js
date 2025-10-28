@@ -240,14 +240,12 @@ export const userFormOptions = [
       },
     ],
     template:
-      `**__Character Creation Template__**\n` +
-      `───────────────────────────────\n\n` +
-      `**Name:**  {{characterName}}\n` +
-      `**Version:** (2014 or 2024)  {{ruleSetVersion}}\n\n` +
-      `**Class(es):** (starting at level 3)  {{classes}}\n` +
-      `**Subclass:** (if any)  {{subclass}}\n\n` +
+      `**Name:** {{characterName}}\n` +
+      `**Version:** {{ruleSetVersion}}\n\n` +
+      `**Class(es):** {{classes}}\n` +
+      `**Subclass:** {{subclass}}\n\n` +
       `**Race & Racial ASI Bonuses:**  {{raceAndAsi}}\n` +
-      `(Specify subrace. For races with multiple versions from different sourcebooks, list the source you’re choosing.)\n\n` +
+      `(Specify subrace.)\n\n` +
       `**Size:**  {{size}}\n` +
       `**Alignment:**  {{alignment}}\n\n` +
       `───────────────────────────────\n\n` +
@@ -271,12 +269,9 @@ export const userFormOptions = [
       `R: {{toolsRace}}\n` +
       `C: {{toolsClass}}\n` +
       `B: {{toolsBackground}}\n\n` +
-      `**Expertise:** (if any)  {{expertise}}\n` +
-      `**Feat(s):** (include feats from Race/Background and label source)  {{feats}}\n\n` +
+      `**Expertise:** {{expertise}}\n` +
+      `**Feat(s):**  {{feats}}\n\n` +
       `───────────────────────────────\n\n` +
-      `**Other Class Choices:**  {{otherChoices}}\n` +
-      `(Includes known spells if any — Sorcerer, Warlock, etc.)\n` +
-      `Also list Invocations, Fighting Style, optional features,\n` +
-      `and any benefits gained from them such as skills.`,
+      `**Other Class Choices:**  {{otherChoices}}\n`,
   },
 ]
