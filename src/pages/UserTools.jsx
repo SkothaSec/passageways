@@ -709,26 +709,7 @@ function UserTools() {
       </Box>
 
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'grid', gap: 3 }}>
-<<<<<<< HEAD
-        <Stack spacing={2}>
-          {activeForm.fields.map((field) => (
-            <TextField
-              key={field.name}
-              label={field.label}
-              name={field.name}
-              value={values[field.name] ?? ''}
-              onChange={handleChange}
-              multiline={field.multiline}
-              minRows={field.minRows}
-              fullWidth
-              placeholder={field.placeholder || field.defaultValue}
-              helperText={field.helperText}
-            />
-          ))}
-        </Stack>
-=======
         {renderFormFields()}
->>>>>>> dev
         <Button type="submit" variant="contained" size="large" sx={{ width: { xs: '100%', sm: 'auto' } }}>
           Generate Markdown
         </Button>
