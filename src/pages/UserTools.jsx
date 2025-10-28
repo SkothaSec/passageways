@@ -215,7 +215,7 @@ function UserTools() {
             />
           ))}
         </Stack>
-        <Button type="submit" variant="contained" size="large">
+        <Button type="submit" variant="contained" size="large" sx={{ width: { xs: '100%', sm: 'auto' } }}>
           Generate Markdown
         </Button>
       </Box>

@@ -14,7 +14,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
-    "@mui/x-data-grid": "^8.15.0",
+    "@mui/x-data-grid": "6.17.0",
     "ag-grid-community": "^34.3.0",
     "ag-grid-react": "^34.3.0",
     "prop-types": "^15.8.1",
