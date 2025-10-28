@@ -249,7 +249,7 @@ function UserTools() {
     event.preventDefault()
     const output = buildMarkdownFromTemplate(activeForm, values)
     setMarkdown(output)
-    setDiscordBlock(`\`\`\`markdown\n${output}\n\`\`\``)
+    setDiscordBlock(output)
   }
 
   const handleCopy = async () => {
