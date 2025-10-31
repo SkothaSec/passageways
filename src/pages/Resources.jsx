@@ -111,13 +111,15 @@ function Resources() {
         <FAQList items={faqItems} />
       </ContentPanel>
 
-      <ContentPanel
-        variant="minimal"
-        title="Server Allowed Content"
-        subtitle="Tap a category to review what’s approved across the Passageways rulesets."
-      >
-        <ContentGroupAccordion groups={serverContentGroups} />
-      </ContentPanel>
+      <Box id="server-allowed-content" sx={{ scrollMarginTop: { xs: 96, md: 128 } }}>
+        <ContentPanel
+          variant="minimal"
+          title="Server Allowed Content"
+          subtitle="Tap a category to review what’s approved across the Passageways rulesets."
+        >
+          <ContentGroupAccordion groups={serverContentGroups} />
+        </ContentPanel>
+      </Box>
 
       <ContentPanel
         variant="minimal"

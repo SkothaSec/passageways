@@ -27,7 +27,7 @@ export const MALL_SHEETS = [
   {
     id: 'magical-knickknacks',
     label: 'Magical Knickknacks',
-    sheet: 'Magical Knickknacks',
+    sheet: 'Magical Knicknacks',
     columns: {
       attunement: 'ATN',
     },
@@ -77,7 +77,7 @@ export const MALL_SHEETS = [
     label: 'Artifacts',
     sheet: 'Artifacts',
     columns: {
-      name: 'Artifact',
+      name: 'ALL ITEMS LISTED HERE ARE SESSION REQUIRED Name',
       source: 'Origin',
       value: 'Value',
       note: 'Notes',
@@ -88,10 +88,10 @@ export const MALL_SHEETS = [
     label: 'Tattoos',
     sheet: 'Tattoos',
     columns: {
-      name: 'Tattoo',
-      type: 'Placement',
+      name: 'KEEP IN MIND: Tattoos cover certain body parts. They cannot overlap with other tattoos. Name',
+      type: 'Type',
       value: 'Cost',
-      note: 'Notes',
+      note: 'Note (Body Coverage)',
     },
   },
   {
