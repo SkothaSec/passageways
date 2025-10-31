@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Stack from '@mui/material/Stack'
 import FormTabsLayout from '../components/forms/FormTabsLayout.jsx'
 import MarkdownPreview from '../components/forms/MarkdownPreview.jsx'
 import StandardFormFields from '../components/forms/StandardFormFields.jsx'
-import CreateCharacterForm, {
-  CORE_STAT_FIELDS,
-} from '../components/user-tools/CreateCharacterForm.jsx'
+import CreateCharacterForm from '../components/user-tools/CreateCharacterForm.jsx'
+import { CORE_STAT_FIELDS } from '../components/user-tools/constants.js'
+import GettingStartedWizard from '../components/user-tools/GettingStartedWizard.jsx'
 import { userFormOptions } from '../data/userTemplates.js'
 
 const buildInitialValues = (form) =>
@@ -40,7 +41,7 @@ const transformValue = (field, rawValue) => {
 }
 
 const parseLineCost = (line) => {
-  const match = line.match(/[\-–]\s*([0-9.,]+)\s*([kKmM]?)/)
+  const match = line.match(/[-–]\s*([0-9.,]+)\s*([kKmM]?)/)
   if (!match) {
     return 0
   }
@@ -182,16 +183,21 @@ const calculatePointBuy = (values) => {
 }
 
 function UserTools() {
-  const [activeFormId, setActiveFormId] = useState(userFormOptions[0].id)
+  const GETTING_STARTED_TAB = 'gettingStarted'
+
+  const [activeFormId, setActiveFormId] = useState(GETTING_STARTED_TAB)
   const activeForm = useMemo(
     () => userFormOptions.find((form) => form.id === activeFormId) ?? userFormOptions[0],
     [activeFormId],
   )
 
+  const isWizardTab = activeFormId === GETTING_STARTED_TAB
+
   const [values, setValues] = useState(() => buildInitialValues(activeForm))
   const [markdown, setMarkdown] = useState('')
   const [discordBlock, setDiscordBlock] = useState('')
   const [copied, setCopied] = useState(false)
+  const [hasAcceptedRules, setHasAcceptedRules] = useState(false)
 
   const isCreateCharacter = activeForm.id === 'createCharacter'
 
@@ -269,6 +275,26 @@ function UserTools() {
     return calculatePointBuy(values)
   }, [isCreateCharacter, values])
 
+  const handleWizardAcceptRules = () => {
+    setHasAcceptedRules(true)
+  }
+
+  const handleWizardOpenCharacterForm = () => {
+    setActiveFormId('createCharacter')
+    const scrollToForm = () => {
+      const target = document.getElementById('player-tools-form')
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+
+    if (typeof queueMicrotask === 'function') {
+      queueMicrotask(scrollToForm)
+    } else {
+      setTimeout(scrollToForm, 0)
+    }
+  }
+
   const formFields = isCreateCharacter ? (
     <CreateCharacterForm
       form={activeForm}
@@ -281,22 +307,51 @@ function UserTools() {
     <StandardFormFields fields={activeForm.fields} values={values} onChange={handleChange} />
   )
 
+  const tabs = [
+    { value: GETTING_STARTED_TAB, label: 'Getting Started' },
+    ...userFormOptions.map((form) => ({ value: form.id, label: form.label })),
+  ]
+
+  const layoutDescription = isWizardTab
+    ? 'Follow this onboarding guide to set up your character before using the tools.'
+    : activeForm.description
+
   return (
     <FormTabsLayout
       title="Player Character Tools"
-      tabs={userFormOptions.map((form) => ({ value: form.id, label: form.label }))}
+      tabs={tabs}
       activeTab={activeFormId}
       onTabChange={handleTabChange}
-      description={activeForm.description}
+      description={layoutDescription}
     >
-      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'grid', gap: 3 }}>
-        {formFields}
-        <Button type="submit" variant="contained" size="large" sx={{ width: { xs: '100%', sm: 'auto' } }}>
-          Generate Markdown
-        </Button>
-      </Box>
+      {isWizardTab ? (
+        <GettingStartedWizard
+          hasAcceptedRules={hasAcceptedRules}
+          onAcceptRules={handleWizardAcceptRules}
+          onOpenCharacterForm={handleWizardOpenCharacterForm}
+        />
+      ) : (
+        <Stack spacing={4}>
+          <Box
+            component="form"
+            id="player-tools-form"
+            onSubmit={handleSubmit}
+            sx={{ display: 'grid', gap: 3 }}
+          >
+            {formFields}
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
+            >
+              Generate Markdown
+            </Button>
+          </Box>
 
-      <MarkdownPreview content={markdown ? discordBlock : ''} copied={copied} onCopy={handleCopy} />
+          <MarkdownPreview content={markdown ? discordBlock : ''} copied={copied} onCopy={handleCopy} />
+        </Stack>
+      )}
     </FormTabsLayout>
   )
 }

@@ -255,7 +255,7 @@ export const userFormOptions = [
       "`STR {{strScore}}` | `DEX {{dexScore}}` | `CON {{conScore}}` | `INT {{intScore}}` | `WIS {{wisScore}}` | `CHA {{chaScore}}`\n" +
       `[35 point buy with calculator](https://chicken-dinner.com/5e/5e-point-buy.html)\n\n` +
       `**Source Labels:**\n` +
-      `R = Race | C = Class | B = Background\n` +
+    `R = Race | C = Class | B = Background\n` +
       `───────────────────────────────\n` +
       `**Languages:**\n` +
       `R: {{languagesRace}}\n` +

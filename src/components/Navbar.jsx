@@ -62,8 +62,7 @@ function Navbar() {
       elevation={0}
       color="primary"
       sx={{
-        background: (theme) =>
-          `linear-gradient(135deg, rgba(12, 14, 24, 0.85), rgba(21, 18, 34, 0.75))`,
+        background: 'linear-gradient(135deg, rgba(12, 14, 24, 0.85), rgba(21, 18, 34, 0.75))',
         borderBottom: '1px solid rgba(127, 90, 240, 0.35)',
       }}
     >
