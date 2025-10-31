@@ -108,7 +108,24 @@ function DungeonMaster() {
     >
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'grid', gap: 3 }}>
         <DungeonMasterForm form={activeForm} values={values} onChange={handleChange} />
-        <Button type="submit" variant="contained" size="large" sx={{ width: { xs: '100%', sm: 'auto' } }}>
+        <Button
+          type="submit"
+          variant="contained"
+          size="large"
+          sx={{
+            width: '100%',
+            borderRadius: '999px',
+            py: 2,
+            fontWeight: 700,
+            letterSpacing: '0.05em',
+            background: 'linear-gradient(135deg, rgba(176, 84, 255, 0.95), rgba(116, 90, 255, 0.88))',
+            boxShadow: '0 16px 45px rgba(104, 58, 196, 0.55)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, rgba(196, 104, 255, 0.98), rgba(136, 110, 255, 0.92))',
+              boxShadow: '0 18px 54px rgba(104, 58, 196, 0.65)',
+            },
+          }}
+        >
           Generate Markdown
         </Button>
       </Box>
