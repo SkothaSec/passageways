@@ -69,7 +69,7 @@ function CheckoutMarkdownBlock({ markdown, onCopy, copied }) {
         ) : (
           <Box sx={{ p: 2 }}>
             <Typography variant="body2" color="text.secondary">
-              Run checkout to generate a Discord-ready summary.
+              Run checkout to generate a Discord-ready post.
             </Typography>
           </Box>
         )}
