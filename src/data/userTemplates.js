@@ -101,7 +101,7 @@ export const userFormOptions = [
       {
         name: 'characterName',
         label: 'Character Name',
-        defaultValue: 'Example: Ares Belmont',
+        defaultValue: 'Gen Erickson',
       },
       {
         name: 'ruleSetVersion',
@@ -175,7 +175,7 @@ export const userFormOptions = [
       {
         name: 'languagesRace',
         label: 'Race',
-        defaultValue: '',
+        defaultValue: 'Common',
       },
       {
         name: 'languagesClass',
@@ -250,7 +250,7 @@ export const userFormOptions = [
       `**Alignment:**  {{alignment}}\n\n` +
       `───────────────────────────────\n\n` +
       `**Background:**  {{background}}\n` +
-      `(List spells and spellcasting trait selected.)\n\n` +
+      `\n` +
       `**Core Stats (without bonuses):**\n` +
       "`STR {{strScore}}` | `DEX {{dexScore}}` | `CON {{conScore}}` | `INT {{intScore}}` | `WIS {{wisScore}}` | `CHA {{chaScore}}`\n" +
       `[35 point buy with calculator](https://chicken-dinner.com/5e/5e-point-buy.html)\n\n` +

@@ -516,7 +516,7 @@ function CreateCharacterForm({ form, values, onChange, onUpdateValues, pointBuy 
     {
       id: 'expertise',
       title: 'Expertise & Feats',
-      description: 'Capture the major boosts worth sharing with your DM.',
+      description: 'If any, list them here.',
       icon: 'expertise',
       rows: [
         [
@@ -528,7 +528,7 @@ function CreateCharacterForm({ form, values, onChange, onUpdateValues, pointBuy 
     {
       id: 'other-choices',
       title: 'Other Class Choices',
-      description: 'Log any extra selections players should know about.',
+      description: 'Log any extra selections that are relevant.',
       icon: 'other',
       rows: [[{ field: 'otherChoices' }]],
     },
