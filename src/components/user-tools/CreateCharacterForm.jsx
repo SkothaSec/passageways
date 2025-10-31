@@ -15,8 +15,7 @@ import PsychologyRoundedIcon from '@mui/icons-material/PsychologyRounded'
 import ConstructionRoundedIcon from '@mui/icons-material/ConstructionRounded'
 import MilitaryTechRoundedIcon from '@mui/icons-material/MilitaryTechRounded'
 import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded'
-
-export const CORE_STAT_FIELDS = ['strScore', 'dexScore', 'conScore', 'intScore', 'wisScore', 'chaScore']
+import { CORE_STAT_FIELDS } from './constants.js'
 
 const alignments = [
   'Lawful Good',

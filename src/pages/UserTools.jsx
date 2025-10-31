@@ -1,13 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Drawer from '@mui/material/Drawer'
+import IconButton from '@mui/material/IconButton'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import FormTabsLayout from '../components/forms/FormTabsLayout.jsx'
 import MarkdownPreview from '../components/forms/MarkdownPreview.jsx'
 import StandardFormFields from '../components/forms/StandardFormFields.jsx'
-import CreateCharacterForm, {
-  CORE_STAT_FIELDS,
-} from '../components/user-tools/CreateCharacterForm.jsx'
+import CreateCharacterForm from '../components/user-tools/CreateCharacterForm.jsx'
+import { CORE_STAT_FIELDS } from '../components/user-tools/constants.js'
+import GettingStartedWizard from '../components/user-tools/GettingStartedWizard.jsx'
 import { userFormOptions } from '../data/userTemplates.js'
+import MenuBookRoundedIcon from '@mui/icons-material/MenuBookRounded'
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 
 const buildInitialValues = (form) =>
   form.fields.reduce((accumulator, field) => {
@@ -40,7 +48,7 @@ const transformValue = (field, rawValue) => {
 }
 
 const parseLineCost = (line) => {
-  const match = line.match(/[\-–]\s*([0-9.,]+)\s*([kKmM]?)/)
+  const match = line.match(/[-–]\s*([0-9.,]+)\s*([kKmM]?)/)
   if (!match) {
     return 0
   }
@@ -182,16 +190,21 @@ const calculatePointBuy = (values) => {
 }
 
 function UserTools() {
-  const [activeFormId, setActiveFormId] = useState(userFormOptions[0].id)
+  const theme = useTheme()
+  const isMdUp = useMediaQuery(theme.breakpoints.up('md'))
+
+  const [activeFormId, setActiveFormId] = useState(userFormOptions[0]?.id ?? '')
   const activeForm = useMemo(
     () => userFormOptions.find((form) => form.id === activeFormId) ?? userFormOptions[0],
     [activeFormId],
   )
+  const [wizardDrawerOpen, setWizardDrawerOpen] = useState(false)
 
   const [values, setValues] = useState(() => buildInitialValues(activeForm))
   const [markdown, setMarkdown] = useState('')
   const [discordBlock, setDiscordBlock] = useState('')
   const [copied, setCopied] = useState(false)
+  const [hasAcceptedRules, setHasAcceptedRules] = useState(false)
 
   const isCreateCharacter = activeForm.id === 'createCharacter'
 
@@ -269,6 +282,27 @@ function UserTools() {
     return calculatePointBuy(values)
   }, [isCreateCharacter, values])
 
+  const handleWizardAcceptRules = () => {
+    setHasAcceptedRules(true)
+  }
+
+  const handleWizardOpenCharacterForm = () => {
+    setWizardDrawerOpen(false)
+    setActiveFormId('createCharacter')
+    const scrollToForm = () => {
+      const target = document.getElementById('player-tools-form')
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+
+    if (typeof queueMicrotask === 'function') {
+      queueMicrotask(scrollToForm)
+    } else {
+      setTimeout(scrollToForm, 0)
+    }
+  }
+
   const formFields = isCreateCharacter ? (
     <CreateCharacterForm
       form={activeForm}
@@ -281,23 +315,90 @@ function UserTools() {
     <StandardFormFields fields={activeForm.fields} values={values} onChange={handleChange} />
   )
 
-  return (
-    <FormTabsLayout
-      title="Player Character Tools"
-      tabs={userFormOptions.map((form) => ({ value: form.id, label: form.label }))}
-      activeTab={activeFormId}
-      onTabChange={handleTabChange}
-      description={activeForm.description}
-    >
-      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'grid', gap: 3 }}>
-        {formFields}
-        <Button type="submit" variant="contained" size="large" sx={{ width: { xs: '100%', sm: 'auto' } }}>
-          Generate Markdown
-        </Button>
-      </Box>
+  const tabs = userFormOptions.map((form) => ({ value: form.id, label: form.label }))
 
-      <MarkdownPreview content={markdown ? discordBlock : ''} copied={copied} onCopy={handleCopy} />
-    </FormTabsLayout>
+  const layoutDescription = activeForm.description
+
+  const renderWizard = () => (
+    <GettingStartedWizard
+      hasAcceptedRules={hasAcceptedRules}
+      onAcceptRules={handleWizardAcceptRules}
+      onOpenCharacterForm={handleWizardOpenCharacterForm}
+    />
+  )
+
+  const openWizardDrawer = () => setWizardDrawerOpen(true)
+  const closeWizardDrawer = () => setWizardDrawerOpen(false)
+
+  return (
+    <>
+      <FormTabsLayout
+        title="Player Character Tools"
+        tabs={tabs}
+        activeTab={activeFormId}
+        onTabChange={handleTabChange}
+        description={layoutDescription}
+      >
+        <Stack spacing={4}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="flex-end" alignItems="flex-start" gap={1.5}>
+            <Button variant="outlined" startIcon={<MenuBookRoundedIcon />} onClick={openWizardDrawer}>
+              Open Getting Started Guide
+            </Button>
+          </Stack>
+
+          <Box
+            component="form"
+            id="player-tools-form"
+            onSubmit={handleSubmit}
+            sx={{ display: 'grid', gap: 3 }}
+          >
+            {formFields}
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
+            >
+              Generate Markdown
+            </Button>
+          </Box>
+
+          <MarkdownPreview content={markdown ? discordBlock : ''} copied={copied} onCopy={handleCopy} />
+        </Stack>
+      </FormTabsLayout>
+
+      <Drawer
+        anchor={isMdUp ? 'right' : 'bottom'}
+        open={wizardDrawerOpen}
+        onClose={closeWizardDrawer}
+        PaperProps={{
+          sx: {
+            width: isMdUp ? 440 : '100%',
+            maxWidth: isMdUp ? 480 : '100%',
+            height: isMdUp ? '100%' : '92vh',
+            maxHeight: isMdUp ? '100%' : 'calc(100vh - 48px)',
+            background: 'linear-gradient(150deg, rgba(18, 18, 32, 0.96), rgba(34, 24, 56, 0.96))',
+            borderLeft: isMdUp ? '1px solid rgba(127, 90, 240, 0.28)' : 'none',
+            borderTop: isMdUp ? 'none' : '1px solid rgba(127, 90, 240, 0.28)',
+            display: 'grid',
+            gridTemplateRows: 'auto 1fr',
+            p: { xs: 2.5, sm: 3 },
+            gap: 2,
+          },
+        }}
+        ModalProps={{ keepMounted: true }}
+      >
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, letterSpacing: '0.06em' }}>
+            Getting Started Guide
+          </Typography>
+          <IconButton onClick={closeWizardDrawer} aria-label="Close getting started guide" color="inherit">
+            <CloseRoundedIcon />
+          </IconButton>
+        </Stack>
+        <Box sx={{ overflowY: 'auto', pr: { xs: 0, sm: 1 } }}>{renderWizard()}</Box>
+      </Drawer>
+    </>
   )
 }
 
