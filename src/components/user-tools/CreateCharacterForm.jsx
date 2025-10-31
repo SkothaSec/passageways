@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
@@ -15,6 +16,7 @@ import PsychologyRoundedIcon from '@mui/icons-material/PsychologyRounded'
 import ConstructionRoundedIcon from '@mui/icons-material/ConstructionRounded'
 import MilitaryTechRoundedIcon from '@mui/icons-material/MilitaryTechRounded'
 import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded'
+import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
 import { CORE_STAT_FIELDS } from './constants.js'
 
 const alignments = [
@@ -535,6 +537,35 @@ function CreateCharacterForm({ form, values, onChange, onUpdateValues, pointBuy 
 
   return (
     <Stack spacing={4} sx={{ width: '100%', maxWidth: { xs: '100%', lg: 960 }, mx: 'auto' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: { xs: 'center', sm: 'flex-end' },
+          width: '100%',
+        }}
+      >
+        <Button
+          component="a"
+          href="/resources#server-allowed-content"
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="contained"
+          color="secondary"
+          endIcon={<OpenInNewRoundedIcon sx={{ fontSize: 20 }} />}
+          sx={{
+            width: { xs: '100%', sm: 'auto' },
+            borderRadius: 999,
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            px: { xs: 3, sm: 4 },
+            py: 1.25,
+            textTransform: 'uppercase',
+            boxShadow: '0 18px 36px rgba(127, 90, 240, 0.28)',
+          }}
+        >
+          Allowed Content
+        </Button>
+      </Box>
       {sections.map((section) => {
         const SectionIcon = section.icon ? sectionIconLookup[section.icon] : null
 
